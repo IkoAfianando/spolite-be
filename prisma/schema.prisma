@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId    String   @id @default(cuid()) @db.VarChar(50)
+  name      String?
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Order     Order[]
+}
+
+model Admin {
+  adminId   String   @id @default(cuid()) @db.VarChar(50)
+  name      String?
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Book      Book[]
+}
+
+model Order {
+  orderId     String        @id @default(cuid()) @db.VarChar(50)
+  userId      String        @db.VarChar(50)
+  user        User          @relation(fields: [userId], references: [userId])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  OrderDetail OrderDetail[]
+}
+
+model Book {
+  bookId      String        @id @default(cuid()) @db.VarChar(50)
+  title       String
+  adminId     String
+  admin       Admin         @relation(fields: [adminId], references: [adminId])
+  price       Float
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  OrderDetail OrderDetail[]
+}
+
+model OrderDetail {
+  orderDetailId String   @id @default(cuid()) @db.VarChar(50)
+  orderId       String   @db.VarChar(50)
+  bookId        String   @db.VarChar(50)
+  quantity      Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  order         Order    @relation(fields: [orderId], references: [orderId])
+  book          Book     @relation(fields: [bookId], references: [bookId])
+}
